@@ -3,43 +3,38 @@ import { byId } from './exercises.js';
 
 const x = (id, sets, amount, extra = {}) => ({ id, sets, amount, ...extra });
 
-// Hver fase har tre korte dage (A, B, C) med 4 øvelser, som skiftes i rækkefølge.
-// Rotationen følger antal gennemførte træninger – springer hun en dag over, tager hun bare den næste.
+// Fire faste øvelser, som bliver sværere fase for fase. Samme øvelser hver dag gør dem nemme at lære.
 export const PHASES = [
   {
     n: 1, name: 'Rolig start', weeks: 'Uge 1–2',
-    goal: 'Ro på ryggen, lær at spænde op og bevæg dig uden smerter.',
-    days: [
-      [x('hoftebojer', 2, 30), x('deadbug', 2, 6), x('bridge', 2, 10), x('hinge', 2, 10)],
-      [x('baglaar', 2, 30), x('birddog', 2, 6), x('curlup', 2, 4), x('clamshell', 2, 10)],
-      [x('aabenbog', 2, 6), x('sideplanke', 2, 20, { tip: 'Lav den på knæene.' }), x('birddog', 2, 6), x('hinge', 2, 10)],
-    ],
+    goal: 'Lær de fire øvelser rigtigt, og få ro på ryggen.',
+    program: [x('deadbug', 2, 6), x('birddog', 2, 6), x('bridge', 2, 10), x('hinge', 2, 10)],
   },
   {
     n: 2, name: 'Styrke', weeks: 'Uge 3–5',
-    goal: 'Mere styrke i mave, ryg og baller. Ryggen skal kunne holde til mere.',
-    days: [
-      [x('hoftebojer', 2, 30), x('deadbug', 3, 8), x('bridge1', 3, 8), x('squat', 3, 10)],
-      [x('baglaar', 2, 30), x('birddog', 3, 8), x('planke', 3, 30), x('pallof', 3, 10, { tip: 'Ingen elastik? Lav dead bug i stedet.' })],
-      [x('aabenbog', 2, 6), x('sideplanke', 3, 30), x('hinge', 2, 10), x('bridge1', 3, 8)],
+    goal: 'Flere sæt og sværere varianter. Ryggen skal kunne holde til mere.',
+    program: [
+      x('deadbug', 3, 8),
+      x('birddog', 2, 6, { tip: 'Hold 5 sekunder i hver strækning.' }),
+      x('bridge1', 2, 8),
+      x('hinge', 2, 10),
     ],
   },
   {
     n: 3, name: 'Gymnastikklar', weeks: 'Uge 6+',
-    goal: 'Gymnastikstyrke: hollow, lange planker og stærke baller til afsæt og landinger.',
-    days: [
-      [x('hoftebojer', 2, 30), x('hollow', 3, 20), x('bridge1', 3, 12), x('squat', 3, 12)],
-      [x('baglaar', 2, 30), x('birddog', 3, 10), x('planke', 3, 45), x('pallof', 3, 12)],
-      [x('aabenbog', 2, 6), x('sideplanke', 3, 40, { tip: 'Prøv at løfte det øverste ben.' }), x('deadbug', 3, 10), x('hinge', 2, 12)],
+    goal: 'Gymnastikstyrke til afsæt og landinger.',
+    program: [
+      x('deadbug', 3, 10, { tip: 'Hold en lille bold eller vandflaske i hænderne.' }),
+      x('birddog', 2, 8, { tip: 'Hold 5 sekunder i hver strækning.' }),
+      x('bridge1', 3, 10),
+      x('hinge', 2, 12),
     ],
   },
 ];
-export const DAY_LABELS = ['A', 'B', 'C'];
 
 export const CLUB_DAY = {
   name: 'Klubdag – kort program',
-  goal: 'Lav det som en del af opvarmningen før træning, eller derhjemme samme dag.',
-  program: [x('deadbug', 2, 6), x('birddog', 2, 6), x('hoftebojer', 1, 30)],
+  goal: 'De samme fire øvelser, ét sæt af hver. Godt som opvarmning før træning.',
 };
 
 export const EASY_DAY = {
@@ -83,26 +78,19 @@ export function currentPhase(profile, today = new Date()) {
   return PHASES[n - 1];
 }
 
-// Næste dag i rotationen = antal fulde træninger i denne fase modulo 3
-export function nextDayIndex(phase, sessions = []) {
-  return sessions.filter((s) => s.programKind === 'fuld' && s.phase === phase.n).length % phase.days.length;
-}
-
-export function fullProgram(profile, sessions = [], dayIndex = null) {
+export function fullProgram(profile) {
   const phase = currentPhase(profile);
-  const d = dayIndex ?? nextDayIndex(phase, sessions);
-  return {
-    kind: 'fuld', phase, day: d, name: `Fase ${phase.n} · Dag ${DAY_LABELS[d]}`,
-    goal: phase.goal, program: phase.days[d],
-  };
+  return { kind: 'fuld', phase, name: `Fase ${phase.n}: ${phase.name}`, goal: phase.goal, program: phase.program };
 }
-export function todaysProgram(profile, sessions = [], today = new Date()) {
+export function todaysProgram(profile, today = new Date()) {
   if (profile.clubDays.includes(today.getDay())) return clubProgram(profile);
-  return fullProgram(profile, sessions);
+  return fullProgram(profile);
 }
 export function easyProgram(profile) {
   return { kind: 'let', phase: currentPhase(profile), ...EASY_DAY };
 }
+// Klubdag: samme øvelser som fasen, men kun ét sæt
 export function clubProgram(profile) {
-  return { kind: 'klub', phase: currentPhase(profile), ...CLUB_DAY };
+  const phase = currentPhase(profile);
+  return { kind: 'klub', phase, ...CLUB_DAY, program: phase.program.map((it) => ({ ...it, sets: 1 })) };
 }

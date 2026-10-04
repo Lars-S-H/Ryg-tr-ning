@@ -1,7 +1,7 @@
 import { EXERCISES, CATEGORIES, byId } from './exercises.js';
 import { createFigure } from './figure.js';
 import {
-  PHASES, DAY_LABELS, REST_SEC, todaysProgram, fullProgram, easyProgram, clubProgram, programMinutes,
+  PHASES, REST_SEC, todaysProgram, fullProgram, easyProgram, clubProgram, programMinutes,
   currentPhase, weekNumber, dateKey, parseKey,
 } from './plan.js';
 import * as store from './store.js';
@@ -66,7 +66,7 @@ function programCard(p, { hero = false, startLabel = 'Start træning' } = {}) {
       <h2 style="margin:4px 0 6px">${esc(p.name)}</h2>
       <p class="${hero ? 'muted' : 'muted small'}">${esc(p.goal)}</p>
       <div class="chips">${p.program.map((it) => `<span class="chip">${esc(byId[it.id].name)}</span>`).join('')}</div>
-      <a class="btn big ${hero ? 'white' : ''}" href="#/traen/${p.kind}${p.kind === 'fuld' ? '/' + p.day : ''}">${startLabel} ▶</a>
+      <a class="btn big ${hero ? 'white' : ''}" href="#/traen/${p.kind}">${startLabel} ▶</a>
     </div>`;
 }
 
@@ -75,13 +75,13 @@ function viewHome() {
   const st = store.getState();
   const prof = st.profile;
   const today = new Date();
-  const todayProg = todaysProgram(prof, st.sessions, today);
+  const todayProg = todaysProgram(prof, today);
   const doneToday = st.sessions.some((s) => s.date === dateKey(today));
   const streak = store.streak();
   const phase = currentPhase(prof);
   const hour = today.getHours();
   const hello = hour < 10 ? 'Godmorgen' : hour < 18 ? 'Hej' : 'Godaften';
-  const alt = todayProg.kind === 'klub' ? fullProgram(prof, st.sessions) : clubProgram(prof);
+  const alt = todayProg.kind === 'klub' ? fullProgram(prof) : clubProgram(prof);
 
   $view.innerHTML = `
     <div class="topline">
@@ -112,7 +112,7 @@ function viewHome() {
     <div class="card">
       <ul class="list">
         <li><a href="#/traen/let"><span style="font-size:26px">🫶</span><div><b>Let dag</b><div class="muted small">Når ryggen er øm · ca. ${programMinutes(easyProgram(prof).program)} min</div></div><span class="chev">›</span></a></li>
-        <li><a href="#/traen/${alt.kind}${alt.kind === 'fuld' ? '/' + alt.day : ''}"><span style="font-size:26px">${alt.kind === 'klub' ? '⚡' : '💪'}</span><div><b>${esc(alt.kind === 'klub' ? 'Kort program' : 'Dagens program')}</b><div class="muted small">${esc(alt.name)} · ca. ${programMinutes(alt.program)} min</div></div><span class="chev">›</span></a></li>
+        <li><a href="#/traen/${alt.kind}"><span style="font-size:26px">${alt.kind === 'klub' ? '⚡' : '💪'}</span><div><b>${esc(alt.kind === 'klub' ? 'Kort program' : 'Fuldt program')}</b><div class="muted small">${esc(alt.name)} · ca. ${programMinutes(alt.program)} min</div></div><span class="chev">›</span></a></li>
         <li><a href="#/plan"><span style="font-size:26px">🗺️</span><div><b>Se hele planen</b><div class="muted small">Fase 1 → 3</div></div><span class="chev">›</span></a></li>
       </ul>
     </div>
@@ -127,18 +127,16 @@ function viewPlan() {
   const cur = currentPhase(prof).n;
   $view.innerHTML = `
     <div class="topline"><a class="icon-btn" href="#/" aria-label="Tilbage">‹</a><h1 style="flex:1">Din plan</h1></div>
-    <p class="muted">4 øvelser om dagen, ca. 10 minutter. Dag A, B og C skiftes i rækkefølge, så alle øvelser kommer med. På dage med klubtræning (${prof.clubDays.map((d) => DOW[d]).join(', ')}) er der 3 korte øvelser.</p>
+    <p class="muted">De samme 4 øvelser hver dag, ca. 10 minutter. De bliver sværere i hver fase. På dage med klubtræning (${prof.clubDays.map((d) => DOW[d]).join(', ')}) laver du ét sæt af hver.</p>
     ${PHASES.map((ph) => `
       <div class="card">
         <div class="topline"><h3>Fase ${ph.n}: ${ph.name}</h3>${ph.n === cur ? '<span class="tag">Nu</span>' : ''}</div>
-        <p class="muted small">${ph.weeks}</p>
+        <p class="muted small">${ph.weeks} · ca. ${programMinutes(ph.program)} min</p>
         <p>${ph.goal}</p>
-        ${ph.days.map((day, di) => `
-        <div class="topline" style="margin-top:14px"><b>Dag ${DAY_LABELS[di]} · ca. ${programMinutes(day)} min</b>${ph.n === cur ? `<a class="btn light" style="min-height:38px;padding:8px 14px" href="#/traen/fuld/${di}">Start ▶</a>` : ''}</div>
-        <ul class="list">${day.map((it) => `
+        <ul class="list">${ph.program.map((it) => `
           <li><a href="#/ovelse/${it.id}"><div class="thumb" data-fig="${it.id}"></div>
           <div><b>${esc(byId[it.id].name)}</b><div class="muted small">${itemText(it)}${it.tip ? ' · ' + esc(it.tip) : ''}</div></div><span class="chev">›</span></a></li>`).join('')}
-        </ul>`).join('')}
+        </ul>
       </div>`).join('')}
     <p class="muted small">Gå kun videre til næste fase, hvis øvelserne i den nuværende føles lette og ikke gør ondt. Fasen kan ændres under ⚙️ Indstillinger.</p>
   `;
@@ -232,10 +230,9 @@ function painPicker(title, sub) {
     <div class="legend"><span>0 = ingen smerte</span><span>10 = værst tænkelige</span></div>`;
 }
 
-function viewTrain(kind, dayArg) {
+function viewTrain(kind) {
   const prof = store.getState().profile;
-  const dayIdx = /^[0-2]$/.test(dayArg ?? '') ? Number(dayArg) : null;
-  const p = kind === 'let' ? easyProgram(prof) : kind === 'klub' ? clubProgram(prof) : fullProgram(prof, store.getState().sessions, dayIdx);
+  const p = kind === 'let' ? easyProgram(prof) : kind === 'klub' ? clubProgram(prof) : fullProgram(prof);
   const session = {
     id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     date: dateKey(), startedAt: new Date().toISOString(),
@@ -641,7 +638,7 @@ function route() {
     case 'plan': return viewPlan();
     case 'ovelser': return viewExercises();
     case 'ovelse': return viewExercise(arg);
-    case 'traen': return viewTrain(arg, h.split('/')[2]);
+    case 'traen': return viewTrain(arg);
     case 'fremgang': return viewProgress();
     case 'info': return viewInfo();
     case 'indstillinger': return viewSettings();

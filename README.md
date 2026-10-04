@@ -3,7 +3,7 @@
 En lille web-app (PWA) med daglig rygtræning til Laura (TeamGym, Gladsaxe IF).
 
 - **17 rygvenlige øvelser** med animerede streg-figurer. De er valgt, fordi det gør ondt ved **fremadbøjning**: ingen sit-ups eller "rør tæerne", men fokus på neutral ryg og hoftehængsel.
-- **Plan i 3 faser** (uge 1–2, 3–5 og 6+) med **4 øvelser pr. gang** (ca. 10–15 min). Dag A, B og C skiftes i rækkefølge. På klubdage (tir, ons, søn) er der 3 korte øvelser, og der er en "Let dag" til, når ryggen er øm.
+- **4 faste øvelser** (dead bug, bird dog, bækkenløft og hoftehængsel), som bliver sværere i 3 faser (uge 1–2, 3–5 og 6+). Det tager ca. 10 min. På klubdage (tir, ons, søn) laver hun ét sæt af hver, og der er en "Let dag" til, når ryggen er øm.
 - **Guidet træning** med timer, pauser og lyd, smerteskala før og efter samt noter.
 - **Fremgang**: stime 🔥, kalender, smertegraf og mærker.
 - **Forældreoverblik** (`foraelder.html`) og push-besked til forældre via ntfy.

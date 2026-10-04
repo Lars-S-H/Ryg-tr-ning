@@ -1,5 +1,5 @@
 // Gør appen brugbar uden internet. Ved nye versioner: hæv VERSION.
-const VERSION = 'v2';
+const VERSION = 'v3';
 const FILES = [
   './', 'index.html', 'foraelder.html', 'css/app.css', 'config.js', 'manifest.webmanifest',
   'js/app.js', 'js/exercises.js', 'js/figure.js', 'js/plan.js', 'js/store.js', 'js/parent.js', 'js/charts.js',
@@ -17,7 +17,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request).then((res) => {
+    fetch(e.request, { cache: 'no-cache' }).then((res) => {
       const copy = res.clone();
       caches.open(VERSION).then((c) => c.put(e.request, copy));
       return res;

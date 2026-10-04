@@ -1,5 +1,5 @@
 // Gør appen brugbar uden internet. Ved nye versioner: hæv VERSION.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const FILES = [
   './', 'index.html', 'foraelder.html', 'css/app.css', 'config.js', 'manifest.webmanifest',
   'js/app.js', 'js/exercises.js', 'js/figure.js', 'js/plan.js', 'js/store.js', 'js/parent.js', 'js/charts.js',

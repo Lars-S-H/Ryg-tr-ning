@@ -12,22 +12,22 @@ export const PHASES = [
   },
   {
     n: 2, name: 'Styrke', weeks: 'Uge 3–5',
-    goal: 'Flere sæt og sværere varianter. Ryggen skal kunne holde til mere.',
+    goal: 'Sværere varianter og en ny øvelse: sideplanken, som styrker siden af kroppen til landinger.',
     program: [
       x('deadbug', 3, 8),
       x('birddog', 2, 6, { tip: 'Hold 5 sekunder i hver strækning.' }),
       x('bridge1', 2, 8),
-      x('hinge', 2, 10),
+      x('sideplanke', 2, 20, { tip: 'Start på knæene. Stræk benene, når det føles let.' }),
     ],
   },
   {
     n: 3, name: 'Gymnastikklar', weeks: 'Uge 6+',
-    goal: 'Gymnastikstyrke til afsæt og landinger.',
+    goal: 'Gymnastikstyrke til afsæt og landinger. Dead bug bliver til hollow hold.',
     program: [
-      x('deadbug', 3, 10, { tip: 'Hold en lille bold eller vandflaske i hænderne.' }),
+      x('hollow', 3, 20, { tip: 'Start med bøjede knæ. Stop, hvis det gør ondt i lænden.' }),
       x('birddog', 2, 8, { tip: 'Hold 5 sekunder i hver strækning.' }),
       x('bridge1', 3, 10),
-      x('hinge', 2, 12),
+      x('sideplanke', 2, 30, { tip: 'Med strakte ben.' }),
     ],
   },
 ];

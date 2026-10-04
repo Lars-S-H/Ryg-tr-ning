@@ -135,9 +135,10 @@ function viewPlan() {
         <p>${ph.goal}</p>
         <ul class="list">${ph.program.map((it) => `
           <li><a href="#/ovelse/${it.id}"><div class="thumb" data-fig="${it.id}"></div>
-          <div><b>${esc(byId[it.id].name)}</b><div class="muted small">${itemText(it)}${it.tip ? ' · ' + esc(it.tip) : ''}</div></div><span class="chev">›</span></a></li>`).join('')}
+          <div><b>${esc(byId[it.id].name)}</b>${ph.n > 1 && !PHASES[ph.n - 2].program.some((p) => p.id === it.id) ? ' <span class="tag" style="background:var(--accent);color:#fff">Ny</span>' : ''}<div class="muted small">${itemText(it)}${it.tip ? ' · ' + esc(it.tip) : ''}</div></div><span class="chev">›</span></a></li>`).join('')}
         </ul>
       </div>`).join('')}
+    <p class="muted small">Hoftehængslet er ikke med efter fase 1, men brug det hver dag, når du samler noget op eller tager sko på.</p>
     <p class="muted small">Gå kun videre til næste fase, hvis øvelserne i den nuværende føles lette og ikke gør ondt. Fasen kan ændres under ⚙️ Indstillinger.</p>
   `;
   mountFigures();
